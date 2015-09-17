@@ -91,6 +91,7 @@
 
 .mce-content-body div.foogallery-tinymce-view .foogallery-pile-inner img {
 	max-width: 150px;
+	max-height: 150px;
 }
 
 .mce-content-body div.foogallery-tinymce-view .foogallery-tinymce-title {

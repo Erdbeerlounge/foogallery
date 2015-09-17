@@ -16,7 +16,7 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 			add_filter( 'media_buttons_context', array( $this, 'add_media_button' ) );
 
 			//add a tinymce plugin
-			add_action( 'admin_head', array( $this, 'add_tinymce_plugin' ) );
+			add_action( 'admin_init', array( $this, 'add_tinymce_plugin' ) );
 
 			// Ajax calls for showing all galleries in the modal
 			add_action( 'wp_ajax_foogallery_load_galleries', array( $this, 'ajax_galleries_html' ) );
