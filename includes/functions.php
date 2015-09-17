@@ -266,6 +266,41 @@ function foogallery_get_all_galleries( $excludes = false ) {
 	return $galleries;
 }
 
+function foogallery_get_galleries( $offset, $posts_per_page, $post_title_like = null, $excludes = false ) {
+	$args = array(
+		'post_type'     => FOOGALLERY_CPT_GALLERY,
+		'post_status'	=> array( 'publish', 'draft' ),
+		'posts_per_page'=> $posts_per_page,
+		'offset'		=> $offset,
+
+	);
+
+	if( !empty( $post_title_like ) ) {
+		$args['post_title_like'] = $post_title_like;
+	}
+
+	if ( is_array( $excludes ) ) {
+		$args['post__not_in'] = $excludes;
+	}
+
+	$get_posts = new \WP_Query($args);
+
+	$gallery_posts = $get_posts->get_posts();
+
+	if ( empty( $gallery_posts ) ) {
+		return array();
+	}
+
+	$galleries = array();
+
+	foreach ( $gallery_posts as $post ) {
+		$galleries[] = FooGallery::get( $post );
+	}
+
+	return $galleries;
+}
+
+
 /**
  * Parse some content and return an array of all gallery shortcodes that are used inside it
  *

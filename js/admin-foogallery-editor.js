@@ -2,12 +2,22 @@
 
 (function(FOOGALLERY, $, undefined) {
 
+	FOOGALLERY.limit = 25;
+	FOOGALLERY.page = 0;
+
 	FOOGALLERY.loadGalleries = function() {
 		$('.foogallery-modal-wrapper .spinner').addClass('is-active');
 		$('.foogallery-modal-reload').hide();
+		$('.foogallery-modal-prevpage').hide();
+		$('.foogallery-modal-nextpage').hide();
+		$('[name="foogallery_search"]').hide();
+		$('.foogallery-modal-search').hide();
 		var data = 'action=foogallery_load_galleries' +
 			'&foogallery_load_galleries=' + $('#foogallery_load_galleries').val() +
-			'&_wp_http_referer=' + encodeURIComponent($('input[name="_wp_http_referer"]').val());
+			'&_wp_http_referer=' + encodeURIComponent($('input[name="_wp_http_referer"]').val()) +
+			'&foogallery_search=' + encodeURIComponent($('input[name="foogallery_search"]').val()) +
+			'&foogallery_limit=' + FOOGALLERY.limit +
+			'&foogallery_page=' + FOOGALLERY.page;
 
 		$.ajax({
 			type: "POST",
@@ -20,6 +30,10 @@
 			complete: function() {
 				$('.foogallery-modal-wrapper .spinner').removeClass('is-active');
 				$('.foogallery-modal-reload').show();
+				$('.foogallery-modal-prevpage').show();
+				$('.foogallery-modal-nextpage').show();
+				$('[name="foogallery_search"]').show();
+				$('.foogallery-modal-search').show();
 			}
 		});
 	};
@@ -44,6 +58,24 @@
 
 		$('.foogallery-modal-reload').on('click', function(e) {
 			e.preventDefault();
+			FOOGALLERY.loadGalleries();
+		});
+
+		$('.foogallery-modal-prevpage').on('click', function(e) {
+			e.preventDefault();
+			if(FOOGALLERY.page > 0) FOOGALLERY.page--;
+			FOOGALLERY.loadGalleries();
+		});
+
+		$('.foogallery-modal-nextpage').on('click', function(e) {
+			e.preventDefault();
+			FOOGALLERY.page++;
+			FOOGALLERY.loadGalleries();
+		});
+
+		$('.foogallery-modal-search').on('click', function(e) {
+			e.preventDefault();
+			FOOGALLERY.page = 0;
 			FOOGALLERY.loadGalleries();
 		});
 

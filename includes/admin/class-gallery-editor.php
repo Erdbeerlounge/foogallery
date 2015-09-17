@@ -22,6 +22,8 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 			add_action( 'wp_ajax_foogallery_load_galleries', array( $this, 'ajax_galleries_html' ) );
 
 			add_action( 'wp_ajax_foogallery_tinymce_load_info', array( $this, 'ajax_get_gallery_info' ) );
+
+			add_filter( 'posts_where', array( $this, 'title_like_posts_where' ), 10, 2 );
 		}
 
 		/**
@@ -265,6 +267,18 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 										<div class="spinner"></div>
 										<a class="foogallery-modal-reload button" href="#"><span class="dashicons dashicons-update"></span> <?php _e( 'Reload', 'foogallery' ); ?></a>
 									</div>
+									<div class="foogallery-modal-reload-container">
+										<a class="foogallery-modal-prevpage button" href="#"><span class="dashicons dashicons-update"></span> <?php _e( '&lt;&lt; Prev', 'foogallery' ); ?></a>
+									</div>
+									<div class="foogallery-modal-reload-container">
+										<a class="foogallery-modal-nextpage button" href="#"><span class="dashicons dashicons-update"></span> <?php _e( 'Next &gt;&gt;', 'foogallery' ); ?></a>
+									</div>
+									<div class="foogallery-modal-reload-container">
+										<input type="text" name="foogallery_search" placeholder="Search..."/>
+									</div>
+									<div class="foogallery-modal-reload-container">
+										<a class="foogallery-modal-search button" href="#"><span class="dashicons dashicons-update"></span> <?php _e( 'Search', 'foogallery' ); ?></a>
+									</div>
 								</h1>
 							</div>
 							<div class="media-frame-content">
@@ -319,6 +333,16 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 		<?php
 		}
 
+		public function title_like_posts_where( $where, &$wp_query ) {
+			global $wpdb;
+
+			if ( $post_title_like = $wp_query->get( 'post_title_like' ) ) {
+				$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . esc_sql( $wpdb->esc_like( $post_title_like ) ) . '%\'';
+			}
+
+			return $where;
+		}
+
 		function ajax_galleries_html() {
 			if ( check_admin_referer( 'foogallery_load_galleries', 'foogallery_load_galleries' ) ) {
 				echo $this->get_galleries_html_for_modal();
@@ -327,7 +351,15 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 		}
 
 		function get_galleries_html_for_modal() {
-			$galleries = foogallery_get_all_galleries();
+			if(!empty($_REQUEST['foogallery_limit'])) {
+				$galleries = foogallery_get_galleries(
+					$_REQUEST['foogallery_page'] * $_REQUEST['foogallery_limit'],
+					$_REQUEST['foogallery_limit'],
+					$_REQUEST['foogallery_search']
+				);
+			} else {
+				$galleries = foogallery_get_all_galleries();
+			}
 
 			ob_start();
 
