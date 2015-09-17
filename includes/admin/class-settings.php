@@ -50,11 +50,11 @@ if ( ! class_exists( 'FooGallery_Admin_Settings' ) ) {
 				'tab'     => 'general',
 			);
 
-			$galleries = foogallery_get_all_galleries();
+//			$galleries = foogallery_get_all_galleries();
 			$gallery_choices = array();
-			foreach ( $galleries as $gallery ) {
-				$gallery_choices[ $gallery->ID ] = $gallery->name;
-			}
+//			foreach ( $galleries as $gallery ) {
+//				$gallery_choices[ $gallery->ID ] = $gallery->name;
+//			}
 
 			$settings[] = array(
 				'id'      => 'default_gallery_settings',
