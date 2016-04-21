@@ -403,12 +403,12 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 					<?php _e( 'This gallery is not used on any pages or pages yet. Quickly create a page:', 'foogallery' ); ?>
 				</p>
 				<div class="foogallery_metabox_actions">
-					<button class="button button-primary button-large" id="foogallery_create_page"><?php _e( 'Create Gallery Page', 'foogallery' ); ?></button>
+					<button class="button button-primary button-large" id="foogallery_create_page"><?php _e( 'Create Gallery Individual Page', 'foogallery' ); ?></button>
 					<span id="foogallery_create_page_spinner" class="spinner"></span>
 					<?php wp_nonce_field( 'foogallery_create_gallery_page', 'foogallery_create_gallery_page_nonce', false ); ?>
 				</div>
 				<p>
-					<?php _e( 'A draft page will be created which includes the gallery shortcode in the content. The title of the page will be the same title as the gallery.', 'foogallery' ); ?>
+					<?php _e( 'An individual page will be created which includes the gallery shortcode in the content. The title of the page will be the same title as the gallery.', 'foogallery' ); ?>
 				</p>
 			<?php }
 		}
@@ -481,8 +481,8 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 				$post = array(
 					'post_content' => $foogallery->shortcode(),
 					'post_title'   => $foogallery->name,
-					'post_status'  => 'draft',
-					'post_type'    => 'page',
+					'post_status'  => 'publish',
+					'post_type'    => 'ebl_gallery',
 				);
 
 				wp_insert_post( $post );

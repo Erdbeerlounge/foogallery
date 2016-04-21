@@ -101,14 +101,30 @@
 			wp.media.editor.insert(shortcode);
 			$('.foogallery-modal-wrapper').hide();
 		});
+
+		$('.eblgallery-modal-insert').on('click', function(e) {
+			e.preventDefault();
+			if ( $(this).attr('disabled') ) {
+				return;
+			}
+			var shortcode = '[eblgallery id="' + $('[data-eblgallery-id]', '.foogallery-gallery-select.selected').data('eblgallery-id') + '"]';
+			wp.media.editor.insert(shortcode);
+			$('.foogallery-modal-wrapper').hide();
+		});
 	};
 
 	FOOGALLERY.changeSelection = function() {
 		var selected = $('.foogallery-gallery-select.selected');
 		if (selected.length) {
 			$('.foogallery-modal-insert').removeAttr('disabled');
+			if($("[data-eblgallery-id]", selected).length) {
+				$('.eblgallery-modal-insert').removeAttr('disabled');
+			} else {
+				$('.eblgallery-modal-insert').attr('disabled', 'disabled');
+			}
 		} else {
 			$('.foogallery-modal-insert').attr('disabled', 'disabled');
+			$('.eblgallery-modal-insert').attr('disabled', 'disabled');
 		}
 	};
 

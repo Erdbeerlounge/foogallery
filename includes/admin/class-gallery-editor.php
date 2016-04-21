@@ -317,6 +317,10 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 										<a href="#" class="foogallery-modal-insert button media-button button-large button-primary media-button-insert" disabled="disabled"
 										   title="<?php esc_attr_e( 'Insert Gallery', 'foogallery' ); ?>"><?php _e( 'Insert Gallery', 'foogallery' ); ?></a>
 									</div>
+									<div class="media-toolbar-primary">
+										<a href="#" class="eblgallery-modal-insert button media-button button-large button-primary media-button-insert" disabled="disabled"
+										   title="<?php esc_attr_e( 'Insert Gallery Button', 'foogallery' ); ?>"><?php _e( 'Insert Gallery Button', 'foogallery' ); ?></a>
+									</div>
 									<!-- end .media-toolbar-primary -->
 								</div>
 								<!-- end .media-toolbar -->
@@ -380,6 +384,10 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 							<h3><?php echo $title; ?></h3>
 							<span><?php echo $images; ?></span>
 							<code>[<?php echo foogallery_gallery_shortcode_tag(); ?> id="<?php echo $gallery->ID; ?>"]</code>
+							<?php $posts = $gallery->find_usages(array('ebl_gallery'), array('publish')); ?>
+							<?php if ($posts && count($posts) > 0): ?>
+								<code data-eblgallery-id="<?php echo $posts[0]->ID ?>">[eblgallery id="<?php echo $posts[0]->ID; ?>"]</code>
+							<?php endif; ?>
 						</div>
 					</div>
 				</li>

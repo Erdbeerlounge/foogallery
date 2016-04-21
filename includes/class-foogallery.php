@@ -310,10 +310,10 @@ class FooGallery extends stdClass {
 		}
 	}
 
-	public function find_usages() {
+	public function find_usages($post_type = array( 'post', 'page', 'ebl_gallery' ), $post_status = array( 'draft', 'publish' )) {
 		return get_posts( array(
-			'post_type'      => array( 'post', 'page', ),
-			'post_status'    => array( 'draft', 'publish', ),
+			'post_type'      => $post_type,
+			'post_status'    => $post_status,
 			'posts_per_page' => -1,
 			'orderby'        => 'post_type',
 			'meta_query'     => array(
