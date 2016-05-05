@@ -385,7 +385,8 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 
 		public function render_gallery_usage_metabox( $post ) {
 			$gallery = $this->get_gallery( $post );
-			$posts = $gallery->find_usages();
+			$posts = $gallery->find_usages( array( 'post', 'page' ) );
+			$ebl_galleries = $gallery->find_usages( array( 'ebl_gallery' ) );
 			if ( $posts && count( $posts ) > 0 ) { ?>
 				<p>
 					<?php _e( 'This gallery is used on the following posts or pages:', 'foogallery' ); ?>
@@ -398,9 +399,22 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 					echo '<span class="view"><a href="' . esc_url( $url ) . '" target="_blank">' . __( 'View', 'foogallery' ) . '</a></span></li>';
 				} ?>
 				</ul>
-			<?php } else { ?>
+			<?php } ?>
+			<?php if ( $ebl_galleries && count( $ebl_galleries ) > 0 ) { ?>
 				<p>
-					<?php _e( 'This gallery is not used on any pages or pages yet. Quickly create a page:', 'foogallery' ); ?>
+					<?php _e( 'This gallery already has individual page:', 'foogallery' ); ?>
+				</p>
+				<ul class="ul-disc">
+					<?php foreach ( $ebl_galleries as $post ) {
+						$url = get_permalink( $post->ID );
+						echo '<li>' . $post->post_title . ' <span class="row-actions">';
+						edit_post_link( __( 'Edit', 'foogallery' ), '<span class="edit">', ' | </span>', $post->ID );
+						echo '<span class="view"><a href="' . esc_url( $url ) . '" target="_blank">' . __( 'View', 'foogallery' ) . '</a></span></li>';
+					} ?>
+				</ul>
+				<?php } else { ?>
+				<p>
+					<?php _e( 'This gallery does not have individual page yet. Quickly create one:', 'foogallery' ); ?>
 				</p>
 				<div class="foogallery_metabox_actions">
 					<button class="button button-primary button-large" id="foogallery_create_page"><?php _e( 'Create Gallery Individual Page', 'foogallery' ); ?></button>
