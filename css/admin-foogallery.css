@@ -168,7 +168,7 @@
 	margin-right: 10px;
 }
 
-#foogallery_pages ul li:hover .row-actions { visibility: visible; }
+#foogallery_pages ul li:hover .row-actions { visibility: visible; position: inherit !important; }
 
 .foogallery-shortcode {
 	text-align: center;
