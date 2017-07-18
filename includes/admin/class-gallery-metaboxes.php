@@ -499,8 +499,18 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 					'post_type'    => 'ebl_gallery',
 				);
 
-				wp_insert_post( $post );
+				$ebl_gallery_id = wp_insert_post( $post );
+
+                if ($ebl_gallery_id) {
+
+                    $featured_attachment_id = $foogallery->find_featured_attachment_id();
+
+                    if ($featured_attachment_id) {
+                        update_post_meta($ebl_gallery_id, '_thumbnail_id', $featured_attachment_id);
+                    }
+                }
 			}
+
 			die();
 		}
 	}
