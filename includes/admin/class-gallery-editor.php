@@ -319,7 +319,7 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 									</div>
 									<div class="media-toolbar-primary">
 										<a href="#" class="eblgallery-modal-insert button media-button button-large button-primary media-button-insert" disabled="disabled"
-										   title="<?php esc_attr_e( 'Insert Gallery Link', 'foogallery' ); ?>"><?php _e( 'Insert Gallery Button', 'foogallery' ); ?></a>
+										   title="<?php esc_attr_e( 'Insert Gallery Link', 'foogallery' ); ?>"><?php _e( 'Insert Gallery Link', 'foogallery' ); ?></a>
 									</div>
 									<!-- end .media-toolbar-primary -->
 								</div>
