@@ -422,7 +422,7 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 					<?php wp_nonce_field( 'foogallery_create_gallery_page', 'foogallery_create_gallery_page_nonce', false ); ?>
 				</div>
 				<p>
-					<?php _e( 'An individual page will be created which includes the gallery shortcode in the content. The title of the page will be the same title as the gallery.', 'foogallery' ); ?>
+					<?php _e( 'An individual page will be created. The title of the page will be the same title as the gallery.', 'foogallery' ); ?>
 				</p>
 			<?php }
 		}
@@ -493,7 +493,6 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 				$foogallery = FooGallery::get_by_id( $foogallery_id );
 
 				$post = array(
-					'post_content' => $foogallery->shortcode(),
 					'post_title'   => $foogallery->name,
 					'post_status'  => 'publish',
 					'post_type'    => 'ebl_gallery',
@@ -502,6 +501,8 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 				$ebl_gallery_id = wp_insert_post( $post );
 
                 if ($ebl_gallery_id) {
+
+                    update_post_meta($ebl_gallery_id, '_foogallery', $foogallery_id);
 
                     $featured_attachment_id = $foogallery->find_featured_attachment_id();
 
