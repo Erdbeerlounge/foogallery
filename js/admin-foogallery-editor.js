@@ -107,7 +107,7 @@
 			if ( $(this).attr('disabled') ) {
 				return;
 			}
-			var shortcode = '[eblgallery id="' + $('[data-eblgallery-id]', '.foogallery-gallery-select.selected').data('eblgallery-id') + '"]';
+			var shortcode = '[eblgallery id="' + $('[data-eblgallery-id]', '.foogallery-gallery-select.selected').data('eblgallery-id') + '" title=""]';
 			wp.media.editor.insert(shortcode);
 			$('.foogallery-modal-wrapper').hide();
 		});

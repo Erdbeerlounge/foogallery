@@ -386,7 +386,7 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_Editor' ) ) {
 							<code>[<?php echo foogallery_gallery_shortcode_tag(); ?> id="<?php echo $gallery->ID; ?>"]</code>
 							<?php $posts = $gallery->find_usages(array('ebl_gallery'), array('publish')); ?>
 							<?php if ($posts && count($posts) > 0): ?>
-								<code data-eblgallery-id="<?php echo $posts[0]->ID ?>">[eblgallery id="<?php echo $posts[0]->ID; ?>"]</code>
+								<code data-eblgallery-id="<?php echo $posts[0]->ID ?>">[eblgallery id="<?php echo $posts[0]->ID; ?>" title=""]</code>
 							<?php endif; ?>
 						</div>
 					</div>
