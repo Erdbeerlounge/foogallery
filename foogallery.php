@@ -32,7 +32,7 @@ define( 'FOOGALLERY_SLUG', 'foogallery' );
 define( 'FOOGALLERY_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FOOGALLERY_URL', plugin_dir_url( __FILE__ ) );
 define( 'FOOGALLERY_FILE', __FILE__ );
-define( 'FOOGALLERY_VERSION', '1.2.6' );
+define( 'FOOGALLERY_VERSION', '1.2.4.10' );
 
 /**
  * FooGallery_Plugin class
