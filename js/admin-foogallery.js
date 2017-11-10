@@ -111,7 +111,7 @@
                 id: 'library',
                 title: l10n.mediaLibraryTitle,
                 multiple: false,
-                content: 'upload',
+                content: 'browse',
                 menu: 'default',
                 router: 'browse',
                 toolbar: 'select',
@@ -120,7 +120,7 @@
                 sortable: true,
                 autoSelect: true,
                 describe: false,
-                contentUserSetting: true,
+                contentUserSetting: false,
                 syncSelection: true,
                 priority: 120,
                 type: 'link',
@@ -446,7 +446,7 @@
                                 //     controller: options.controller,
                                 //     model: options.controller.state()
 
-
+                                options.controller.state().trigger('reset' );
                                 options.controller.state().frame.content.mode('browse');
                                 var a = wp.media.model.Attachment.create( attachment.data );
                                 options.controller.state().get('selection').add(a);
