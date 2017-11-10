@@ -37,7 +37,60 @@ if ( ! class_exists( 'FooGallery_Admin' ) ) {
 			//output shortcode for javascript
 			add_action( 'admin_footer', array( $this, 'output_shortcode_variable' ), 200 );
 			add_action( 'upgrader_process_complete', array( $this, 'plugin_updated' ), 10, 2 );
+
+            add_action( 'wp_ajax_foogallery_store_embed', array( $this, 'ajax_foogallery_store_embed' ) );
 		}
+
+        function ajax_foogallery_store_embed() {
+
+            if ( ! current_user_can( 'upload_files' ) ) {
+                echo wp_json_encode( array(
+                    'success' => false,
+                    'data'    => array(
+                        'message'  => __( 'Sorry, you are not allowed to upload files.' ),
+                        'filename' => $_FILES['async-upload']['name'],
+                    )
+                ) );
+
+                wp_die();
+            }
+
+            if ( isset( $_REQUEST['post_id'] ) ) {
+                $post_id = $_REQUEST['post_id'];
+                if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                    echo wp_json_encode( array(
+                        'success' => false,
+                        'data'    => array(
+                            'message'  => __( 'Sorry, you are not allowed to attach files to this post.' ),
+                            'filename' => $_FILES['async-upload']['name'],
+                        )
+                    ) );
+
+                    wp_die();
+                }
+            } else {
+                $post_id = null;
+            }
+
+            $attachment = [
+                'post_content' => '[embed]'.$_REQUEST["url"].'[/embed]',
+                'post_mime_type' => 'text/html',
+                'post_parent' => $post_id
+            ];
+
+            $attachment_id = wp_insert_attachment($attachment, 'http://bja-el620.sb.erdbeerlounge.de/wp-includes/images/media/text.png', $post_id);
+
+            $attachment = wp_prepare_attachment_for_js($attachment_id);
+            $attachment['sizes'] = [];
+
+            header( 'Content-type: application/json' );
+
+            echo wp_json_encode( array(
+                'success' => true,
+                'data'    => $attachment,
+            ) );
+            die();
+        }
 
 
 		function admin_print_styles() {

@@ -106,7 +106,154 @@
 			return;
 		}
 
+        wp.media.controller.Library = wp.media.controller.Library.extend({
+            defaults: {
+                id: 'library',
+                title: l10n.mediaLibraryTitle,
+                multiple: false,
+                content: 'upload',
+                menu: 'default',
+                router: 'browse',
+                toolbar: 'select',
+                searchable: true,
+                filterable: false,
+                sortable: true,
+                autoSelect: true,
+                describe: false,
+                contentUserSetting: true,
+                syncSelection: true,
+                priority: 120,
+                type: 'link',
+                url: '',
+                metadata: {}
+            },
+            // The amount of time used when debouncing the scan.
+            sensitivity: 400,
+
+            /**
+             * If a library isn't provided, query all media items.
+             * If a selection instance isn't provided, create one.
+             *
+             * @since 3.5.0
+             */
+            initialize: function (options) {
+                var selection = this.get('selection'),
+                    props;
+
+                if (!this.get('library')) {
+                    this.set('library', wp.media.query());
+                }
+
+                if (!( selection instanceof wp.media.model.Selection )) {
+                    props = selection;
+
+                    if (!props) {
+                        props = this.get('library').props.toJSON();
+                        props = _.omit(props, 'orderby', 'query');
+                    }
+
+                    this.set('selection', new wp.media.model.Selection(null, {
+                        multiple: this.get('multiple'),
+                        props: props
+                    }));
+                }
+
+                this.resetDisplays();
+
+                this.metadata = options.metadata;
+                this.debouncedScan = _.debounce(_.bind(this.scan, this), this.sensitivity);
+                this.props = new Backbone.Model(this.metadata || {url: ''});
+                this.props.on('change:url', this.debouncedScan, this);
+                this.props.on('change:url', this.refresh, this);
+                this.on('scan', this.scanImage, this);
+            },
+
+            /**
+             * Trigger a scan of the embedded URL's content for metadata required to embed.
+             *
+             * @fires wp.media.controller.Embed#scan
+             */
+            scan: function () {
+                var scanners,
+                    embed = this,
+                    attributes = {
+                        type: 'link',
+                        scanners: []
+                    };
+
+                // Scan is triggered with the list of `attributes` to set on the
+                // state, useful for the 'type' attribute and 'scanners' attribute,
+                // an array of promise objects for asynchronous scan operations.
+                if (this.props.get('url')) {
+                    this.trigger('scan', attributes);
+                }
+
+                if (attributes.scanners.length) {
+                    scanners = attributes.scanners = $.when.apply($, attributes.scanners);
+                    scanners.always(function () {
+                        if (embed.get('scanners') === scanners) {
+                            embed.set('loading', false);
+                        }
+                    });
+                } else {
+                    attributes.scanners = null;
+                }
+
+                attributes.loading = !!attributes.scanners;
+                this.set(attributes);
+            },
+            /**
+             * Try scanning the embed as an image to discover its dimensions.
+             *
+             * @param {Object} attributes
+             */
+            scanImage: function( attributes ) {
+                var frame = this.frame,
+                    state = this,
+                    url = this.props.get('url'),
+                    image = new Image(),
+                    deferred = $.Deferred();
+
+                attributes.scanners.push( deferred.promise() );
+
+                // Try to load the image and find its width/height.
+                image.onload = function() {
+                    deferred.resolve();
+
+                    if ( state !== frame.state() || url !== state.props.get('url') ) {
+                        return;
+                    }
+
+                    state.set({
+                        type: 'image'
+                    });
+
+                    state.props.set({
+                        width:  image.width,
+                        height: image.height
+                    });
+                };
+
+                image.onerror = deferred.reject;
+                image.src = url;
+            },
+
+            refresh: function() {
+                this.frame.toolbar.get().refresh();
+            },
+
+            reset: function() {
+                this.props.clear().set({ url: '' });
+
+                if ( this.active ) {
+                    this.refresh();
+                }
+            }
+        });
+
         wp.media.view.MediaFrame.Select = wp.media.view.MediaFrame.extend({
+
+
             initialize: function() {
                 // Call 'initialize' directly on the parent class.
                 wp.media.view.MediaFrame.prototype.initialize.apply( this, arguments );
@@ -181,6 +328,7 @@
                 this.on( 'content:render:upload', this.uploadContent, this );
                 this.on( 'content:render:embed', this.embedContent, this );
                 this.on( 'toolbar:create:select', this.createSelectToolbar, this );
+                this.on( 'content:deactivate:embed', function(){this.toolbar.get().get('createEmbedElement').$el.hide();}, this);
             },
 
             /**
@@ -200,7 +348,7 @@
                     },
                     embed: {
                         text:     'embed',
-                        priority: 40
+                        priority: 10
                     }
                 });
             },
@@ -247,14 +395,16 @@
             },
 
             /**
-             * Render callback for the content region in the `upload` mode.
+             * Render callback for the content region in the `embed` mode.
              */
             embedContent: function() {
-                console.log('dziala');
+                this.toolbar.get().get('createEmbedElement').$el.show();
+
                 this.$el.removeClass( 'hide-toolbar' );
-                this.content.set( new wp.media.view.UploaderInline({
-                    controller: this
-                }) );
+                this.content.set( new wp.media.view.Embed({
+                    controller: this,
+                    model:      this.state()
+                }).render() );
             },
 
             /**
@@ -264,11 +414,50 @@
              * @param {Object} [options={}]
              * @this wp.media.controller.Region
              */
-            createSelectToolbar: function( toolbar, options ) {
+            createSelectToolbar: function (toolbar, options) {
                 options = options || this.options.button || {};
                 options.controller = this;
 
-                toolbar.view = new wp.media.view.Toolbar.Select( options );
+                toolbar.view = new wp.media.view.Toolbar.Select(options);
+
+                toolbar.view.set("createEmbedElement", {
+                    style: "primary",
+                    priority: 80,
+                    text: "Create embed element",
+                    click: function () {
+                        if ('' == options.controller.state().props.get('url')) {
+                            return false;
+                        }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: wp.ajax.settings.url,
+                            context: this,
+                            data: {
+                                action: 'foogallery_store_embed',
+                                post_id: wp.media.view.settings.post.id,
+                                url: options.controller.state().props.get('url')
+                            }
+                        })
+                            .done(function (attachment) {
+                                // console.log(options.controller.state().get('library'));
+                                // collection: options.controller.state().get('library'),
+                                //     selection:  options.controller.state().get('selection'),
+                                //     controller: options.controller,
+                                //     model: options.controller.state()
+
+
+                                options.controller.state().frame.content.mode('browse');
+                                var a = wp.media.model.Attachment.create( attachment.data );
+                                options.controller.state().get('selection').add(a);
+                                options.controller.state().get('library')._requery(true);
+                            })
+                            .fail(function () {
+                                alert('error')
+                            });
+                    }
+                });
+                toolbar.view.get('createEmbedElement').$el.hide();
             }
         });
 
@@ -289,24 +478,24 @@
 				var attachments = FOOGALLERY.media_uploader.state().get('selection').toJSON();
 
 				$.each(attachments, function(i, item) {
-					if (item && item.id && item.sizes) {
-						if (item.sizes.thumbnail) {
-							var attachment = {
-								id: item.id,
-								src: item.sizes.thumbnail.url
-							};
-						} else {
-							//thumbnail could not be found for whatever reason
-							var attachment = {
-								id: item.id,
-								src: item.url
-							};
-						}
+                    if (item && item.id) {
+                        if (item.sizes && item.sizes.thumbnail) {
+                            var attachment = {
+                                id: item.id,
+                                src: item.sizes.thumbnail.url
+                            };
+                        } else {
+                            //thumbnail could not be found for whatever reason
+                            var attachment = {
+                                id: item.id,
+                                src: item.url
+                            };
+                        }
 
-						FOOGALLERY.addAttachmentToGalleryList(attachment);
-					} else {
-						//there was a problem adding the item! Move on to the next
-					}
+                        FOOGALLERY.addAttachmentToGalleryList(attachment);
+                    } else {
+                        //there was a problem adding the item! Move on to the next
+                    }
 				});
 			})
 			.on( 'open', function() {
