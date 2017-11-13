@@ -479,7 +479,13 @@
 
 				$.each(attachments, function(i, item) {
                     if (item && item.id) {
-                        if (item.sizes && item.sizes.thumbnail) {
+                        if(item.mime == 'text/html'){
+                            var attachment = {
+                                id: item.id,
+                                src: item.icon
+                            }
+                        }
+                        else if (item.sizes && item.sizes.thumbnail) {
                             var attachment = {
                                 id: item.id,
                                 src: item.sizes.thumbnail.url

@@ -232,13 +232,13 @@ if ( ! class_exists( 'FooGallery_Admin_Gallery_MetaBoxes' ) ) {
 		public function render_gallery_item( $attachment_post = false ) {
 			if ( $attachment_post != false ) {
 				$attachment_id = $attachment_post->ID;
-				$attachment = wp_get_attachment_image_src( $attachment_id );
+				$attachment = wp_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon = true );
 			} else {
 				$attachment_id = '';
 				$attachment = '';
 			}
 			$data_attribute = empty($attachment_id) ? '' : "data-attachment-id=\"{$attachment_id}\"";
-			$img_tag        = empty($attachment) ? '<img width="150" height="150" />' : "<img width=\"150\" height=\"150\" src=\"{$attachment[0]}\" />";
+			$img_tag        = empty($attachment) ? '<img style="max-width: 100%;" />' : "<img style='max-width: 100%;' src=\"{$attachment[0]}\" />";
 			?>
 			<li class="attachment details" <?php echo $data_attribute; ?>>
 				<div class="attachment-preview type-image">
